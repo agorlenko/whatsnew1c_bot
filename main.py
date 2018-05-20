@@ -21,7 +21,9 @@ def get_bot_token():
     return row[0]
 
 print('Hi!!!', file=sys.stderr)
-bot = telebot.TeleBot(get_bot_token())
+bot_token = get_bot_token()
+print('bot_token = ' + bot_token)
+bot = telebot.TeleBot(bot_token)
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
