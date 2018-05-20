@@ -9,9 +9,8 @@ def get_bot_token():
     user = url.username
     password = url.password
     host = url.hostname
-    port = url.port
     try:
-        conn = psycopg2.connect(dbname=dbname user=user host=host password=password)
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
     except:
         print('I am unable to connect to the database')
         return None
@@ -32,6 +31,6 @@ def handle_text(message):
     else:
         bot.send_message(message.from_user.id, 'Sorry, i dont understand you.')
 
-telebot.apihelper.proxy = {'https':'socks5://138.68.59.157:1210'}
+#telebot.apihelper.proxy = {'https':'socks5://138.68.59.157:1210'}
 
 bot.polling(none_stop=True, interval=0)
