@@ -9,11 +9,11 @@ def get_bot_token():
     user = url.username
     password = url.password
     host = url.hostname
-    try:
-        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
-    except:
-        print('I am unable to connect to the database')
-        return None
+    #try:
+    conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
+    #except:
+    #    print('I am unable to connect to the database')
+    #    return None
     cursor = conn.cursor()
     cursor.execute('SELECT id FROM bot_params LIMIT 1')
     row = cursor.fetchone()
