@@ -19,7 +19,7 @@ def get_bot_token():
     row = cursor.fetchone()
     return row[0]
 
-
+print('Hi!!!')
 bot = telebot.TeleBot(get_bot_token())
 
 @bot.message_handler(content_types=['text'])
