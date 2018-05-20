@@ -2,6 +2,7 @@ import os
 import psycopg2
 import telebot
 import urllib.parse as urlparse
+import sys
 
 def get_bot_token():
     url = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -19,7 +20,7 @@ def get_bot_token():
     row = cursor.fetchone()
     return row[0]
 
-print('Hi!!!')
+print('Hi!!!', file=sys.stderr)
 bot = telebot.TeleBot(get_bot_token())
 
 @bot.message_handler(content_types=['text'])
