@@ -33,11 +33,11 @@ def handle_text(message):
         markup = types.ReplyKeyboardMarkup()
         markup.row('Subscribe to all')
         markup.row('Unsubscribe from all')
-        bot.send_message(message.chat.id, 'Choose command:', reply_markup=markup)
+        bot.send_message(message.from_user.id, 'Choose command:', reply_markup=markup)
     elif message.text == 'Subscribe to all':
-        bot.send_message(message.chat.id, 'You are subscribe to all')
+        bot.send_message(message.from_user.id, 'You are subscribe to all')
     elif message.text == 'Unsubscribe from all':
-        bot.send_message(message.chat.id, 'You are unsubscribe from all')
+        bot.send_message(message.from_user.id, 'You are unsubscribe from all')
     
 """ @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
