@@ -10,30 +10,30 @@ def get_bot_token():
     user = url.username
     password = url.password
     host = url.hostname
-    #try:
-    conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
-    #except:
-    #    print('I am unable to connect to the database')
-    #    return None
+    try:
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
+    except:
+        print('I am unable to connect to the database')
+        return None
     cursor = conn.cursor()
     cursor.execute('SELECT id FROM bot_params LIMIT 1')
     row = cursor.fetchone()
     return row[0]
 
-print('Hi!!!', file=sys.stderr)
 bot_token = get_bot_token()
-print('bot_token = ' + bot_token)
 bot = telebot.TeleBot(bot_token)
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
-    if message.text == 'Hi':
-        bot.send_message(message.from_user.id, 'Hello! I am WhatsNew1C_bot. How can i help you?')
-    elif message.text == 'How are you?' or message.text == 'How are u?':
-        bot.send_message(message.from_user.id, 'I am fine, thanks. And you?')
-    else:
-        bot.send_message(message.from_user.id, 'Sorry, i dont understand you.')
+    keyboard = telebot.types..InlineKeyboardMarkup()
+    subscribe_to_all_button = types.InlineKeyboardButton(text='Подписаться на все', callback_data='subscribe_to_all')
+    keyboard.add(callback_button)
+    bot.send_message(message.chat.id, reply_markup=keyboard)
 
-#telebot.apihelper.proxy = {'https':'socks5://138.68.59.157:1210'}
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    if call.message:
+        if call.data == 'subscribe_to_all':
+            bot.send_message(chat_id=call.message.chat.id, 'subscribe_to_all')
 
 bot.polling(none_stop=True, interval=0)
