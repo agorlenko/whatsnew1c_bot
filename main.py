@@ -29,7 +29,7 @@ def handle_text(message):
     keyboard = types.InlineKeyboardMarkup()
     subscribe_to_all_button = types.InlineKeyboardButton(text='Подписаться на все', callback_data='subscribe_to_all')
     keyboard.add(subscribe_to_all_button)
-    bot.send_message(message.chat.id, reply_markup=keyboard)
+    bot.send_message(message.chat.id, '',reply_markup=keyboard)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
