@@ -3,6 +3,7 @@ import psycopg2
 import telebot
 import urllib.parse as urlparse
 import sys
+from telebot import types
 
 def get_bot_token():
     url = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -25,15 +26,15 @@ bot = telebot.TeleBot(bot_token)
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
-    keyboard = telebot.types..InlineKeyboardMarkup()
+    keyboard = types.InlineKeyboardMarkup()
     subscribe_to_all_button = types.InlineKeyboardButton(text='Подписаться на все', callback_data='subscribe_to_all')
-    keyboard.add(callback_button)
+    keyboard.add(subscribe_to_all_button)
     bot.send_message(message.chat.id, reply_markup=keyboard)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.message:
         if call.data == 'subscribe_to_all':
-            bot.send_message(chat_id=call.message.chat.id, 'subscribe_to_all')
+            bot.send_message(call.message.chat.id, 'subscribe_to_all')
 
 bot.polling(none_stop=True, interval=0)
