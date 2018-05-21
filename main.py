@@ -24,17 +24,23 @@ def get_bot_token():
 bot_token = get_bot_token()
 bot = telebot.TeleBot(bot_token)
 
+
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
-    keyboard = types.InlineKeyboardMarkup()
-    subscribe_to_all_button = types.InlineKeyboardButton(text='Подписаться на все', callback_data='subscribe_to_all')
-    keyboard.add(subscribe_to_all_button)
-    bot.send_message(message.chat.id, 'subscribe_to_all',reply_markup=keyboard)
-
-@bot.callback_query_handler(func=lambda call: True)
+    if message.text == 'start':
+        markup = types.ReplyKeyboardMarkup()
+        markup.row('Subscribe to all')
+        markup.row('Unsubscribe from all')
+        bot.send_message(message.chat.id, 'Choose command:', reply_markup=markup)
+    elif message.text == 'Subscribe to all':
+        bot.send_message(message.chat.id, 'You are subscribe to all')
+    elif message.text == 'Unsubscribe from all':
+        bot.send_message(message.chat.id, 'You are unsubscribe from all')
+    
+""" @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.message:
         if call.data == 'subscribe_to_all':
             bot.send_message(call.message.chat.id, 'subscribe_to_all')
-
+ """
 bot.polling(none_stop=True, interval=0)
