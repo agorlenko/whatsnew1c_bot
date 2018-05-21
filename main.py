@@ -21,12 +21,14 @@ def get_bot_token():
     row = cursor.fetchone()
     return row[0]
 
+print('start')
 bot_token = get_bot_token()
 bot = telebot.TeleBot(bot_token)
-
+print('bot starting')
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
+    print('message text = ' + message.text)
     if message.text == 'start':
         markup = types.ReplyKeyboardMarkup()
         markup.row('Subscribe to all')
