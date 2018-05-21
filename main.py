@@ -26,17 +26,18 @@ bot_token = get_bot_token()
 bot = telebot.TeleBot(bot_token)
 print('bot starting')
 
+@bot.message_handler(commands=['start'])
+def start_handler(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.row('Subscribe to all', 'Delete all subscriptions')
+    bot.send_message(message.from_user.id, 'Choose command:', reply_markup=markup)
+
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     print('message text = ' + message.text)
-    if message.text == 'start':
-        markup = types.ReplyKeyboardMarkup()
-        markup.row('Subscribe to all')
-        markup.row('Unsubscribe from all')
-        bot.send_message(message.from_user.id, 'Choose command:', reply_markup=markup)
-    elif message.text == 'Subscribe to all':
+    if message.text.upper() == 'Subscribe to all'.upper():
         bot.send_message(message.from_user.id, 'You are subscribe to all')
-    elif message.text == 'Unsubscribe from all':
+    elif message.text.upper() == 'Delete all subscriptions'.upper():
         bot.send_message(message.from_user.id, 'You are unsubscribe from all')
     
 """ @bot.callback_query_handler(func=lambda call: True)
