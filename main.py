@@ -4,6 +4,7 @@ import telebot
 import urllib.parse as urlparse
 import sys
 from telebot import types
+from flask import Flask, request
 
 def get_bot_token():
     url = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -22,28 +23,29 @@ def get_bot_token():
     return row[0]
 
 print('start')
-bot_token = get_bot_token()
-bot = telebot.TeleBot(bot_token)
+TOKEN = get_bot_token()
+bot = telebot.TeleBot(TOKEN)
 print('bot starting')
+server = Flask(__name__)
 
 @bot.message_handler(commands=['start'])
-def start_handler(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.row('Subscribe to all', 'Delete all subscriptions')
-    bot.send_message(message.from_user.id, 'Choose command:', reply_markup=markup)
+def start(message):
+    bot.reply_to(message, 'Hello, ' + message.from_user.first_name)
 
-@bot.message_handler(content_types=['text'])
-def handle_text(message):
-    print('message text = ' + message.text)
-    if message.text.upper() == 'Subscribe to all'.upper():
-        bot.send_message(message.from_user.id, 'You are subscribe to all, ' + str(message.from_user.id))
-    elif message.text.upper() == 'Delete all subscriptions'.upper():
-        bot.send_message(message.from_user.id, 'You are delete all subscriptions, ' + str(message.from_user.id))
-    
-""" @bot.callback_query_handler(func=lambda call: True)
-def callback(call):
-    if call.message:
-        if call.data == 'subscribe_to_all':
-            bot.send_message(call.message.chat.id, 'subscribe_to_all')
- """
-bot.polling(none_stop=True, interval=0)
+@bot.message_handler(func=lambda message: True, content_types=['text'])
+def echo_message(message):
+    bot.reply_to(message, message.text)
+
+@server.route('/' + TOKEN, methods=['POST'])
+def getMessage():
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "!", 200
+
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://your_heroku_project.com/' + TOKEN)
+    return "!", 200
+
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
