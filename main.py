@@ -36,9 +36,9 @@ def start_handler(message):
 def handle_text(message):
     print('message text = ' + message.text)
     if message.text.upper() == 'Subscribe to all'.upper():
-        bot.send_message(message.from_user.id, 'You are subscribe to all, ' + message.from_user.id)
+        bot.send_message(message.from_user.id, 'You are subscribe to all, ' + str(message.from_user.id)
     elif message.text.upper() == 'Delete all subscriptions'.upper():
-        bot.send_message(message.from_user.id, 'You are delete all subscriptions, ' + message.from_user.id)
+        bot.send_message(message.from_user.id, 'You are delete all subscriptions, ' + str(message.from_user.id)
     
 """ @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
