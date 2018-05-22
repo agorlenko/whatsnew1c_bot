@@ -5,6 +5,7 @@ import urllib.parse as urlparse
 import sys
 from telebot import types
 from flask import Flask, request
+import logging
 
 def get_bot_token():
     url = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -43,6 +44,7 @@ def getMessage():
 
 @server.route("/")
 def webhook():
+    print('webhook!')
     bot.remove_webhook()
     bot.set_webhook(url='https://whatsnew1cbot.herokuapp.com/' + TOKEN)
     return "!", 200
