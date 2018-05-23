@@ -44,7 +44,7 @@ def getMessage():
 
 @server.route("/")
 def webhook():
-    #raise 'HOOK'
+    print('HOOK')
     bot.remove_webhook()
     bot.set_webhook(url='https://whatsnew1cbot.herokuapp.com/' + TOKEN)
     return "!", 200
