@@ -12,7 +12,7 @@ def get_bot_token():
     dbname = url.path[1:]
     user = url.username
     password = url.password
-    host = url.hostname
+    host = url.hostname    
     try:
         conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
     except:
