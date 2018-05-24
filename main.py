@@ -1,11 +1,8 @@
 import os
 import psycopg2
-import telebot
 import urllib.parse as urlparse
-import sys
-from telebot import types
-from flask import Flask, request
-import logging
+from telegram.ext import Updater, MessageHandler, Filters
+
 
 def get_bot_token():
     url = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -25,31 +22,19 @@ def get_bot_token():
 
 print('start')
 TOKEN = get_bot_token()
-bot = telebot.TeleBot(TOKEN)
+PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
-server = Flask(__name__)
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, 'Hello, ' + message.from_user.first_name)
 
-@bot.message_handler(func=lambda message: True, content_types=['text'])
-def echo_message(message):
-    bot.reply_to(message, message.text)
+def echo(bot, update):
+    update.message.reply_text('Bot answer: ' + update.message.text)
+    
+updater = Updater(TOKEN)
 
-@server.route('/' + TOKEN, methods=['POST'])
-def getMessage():
-    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-    return "!", 200
+# add handlers
+updater.dispatcher.add_handler(MessageHandler(Filters.text, echo))
 
-@server.route("/")
-def webhook():
-    print('HOOK')
-    bot.remove_webhook()
-    bot.set_webhook(url='https://whatsnew1cbot.herokuapp.com/' + TOKEN)
-    return "!", 200
+updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
 
-if __name__ == "__main__":
-    webhook()
-    print('running server')
-    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+updater.bot.setWebhook("https://whatsnew1cbot.herokuapp.com/" + TOKEN)
+updater.idle()
