@@ -22,7 +22,7 @@ def get_bot_token():
     return row[0]
 
 print('start')
-TOKEN = get_bot_token()
+TOKEN = os.environ['BOT_TOKEN']
 PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
@@ -45,7 +45,8 @@ def handler(bot, update):
         update.message.reply_text('Неизвестное действие')
 
 def subscribe_to_all(update):
-    update.message.reply_text('Вы подписались на все')
+    #add_subscriber()
+    update.message.reply_text('Вы подписались на все.' + str(update.message.chat))
 
 def unsubscribe_from_all(update):
     update.message.reply_text('Вы отменили подписку на все')
