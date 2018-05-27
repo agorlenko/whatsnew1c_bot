@@ -25,6 +25,8 @@ TOKEN = get_bot_token()
 PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
+def start(update, context):
+    update.message.reply_text('Hi!')
 
 def echo(bot, update):
     update.message.reply_text('Bot answer: ' + update.message.text)
@@ -32,6 +34,7 @@ def echo(bot, update):
 updater = Updater(TOKEN)
 
 # add handlers
+updater.dispatcher.add_handler(CommandHandler("start", start))
 updater.dispatcher.add_handler(MessageHandler(Filters.text, echo))
 
 updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
