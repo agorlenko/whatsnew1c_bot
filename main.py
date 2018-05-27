@@ -25,7 +25,7 @@ TOKEN = get_bot_token()
 PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
-def start(update, context):
+def start(bot, update):
     update.message.reply_text('Hi!')
 
 def echo(bot, update):
