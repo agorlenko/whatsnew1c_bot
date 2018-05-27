@@ -27,7 +27,7 @@ PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
 keyboard = [['Подписаться на все', 'Отменить подписку']]    
-markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=False)    
+markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)    
 
 def start(bot, update):
     #keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'), InlineKeyboardButton("Option 2", callback_data='2')], [InlineKeyboardButton("Option 3", callback_data='3')]]
