@@ -35,12 +35,26 @@ def start(bot, update):
 
 def echo(bot, update):
     update.message.reply_text('Bot answer: ' + update.message.text)
-    
+
+def handler(bot, update):
+    if update.message.text == 'Подписаться на все':
+        subscribe_to_all(update)
+    elif update.message.text == 'Отменить подписку':
+        unsubscribe_from_all(update)
+    else:
+        update.message.reply_text('Неизвестное действие')
+
+def subscribe_to_all(update):
+    update.message.reply_text('Вы подписались на все')
+
+def unsubscribe_from_all(update):
+    update.message.reply_text('Вы отменили подписку на все')
+
 updater = Updater(TOKEN)
 
 # add handlers
 updater.dispatcher.add_handler(CommandHandler("start", start))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, echo))
+updater.dispatcher.add_handler(MessageHandler(Filters.text, handler))
 
 updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
 
