@@ -62,10 +62,16 @@ def subscribe_to_all(update):
                     , (update.message.chat.id,))
     curs.close()
     conn.close()
-    update.message.reply_text('Вы подписались на все.' + str(update.message.chat))
+    update.message.reply_text('Вы успешно подписалиь на все новости')
 
 def unsubscribe_from_all(update):
-    update.message.reply_text('Вы отменили подписку на все')
+    db_conn_params = get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('DELETE FROM subscribers WHERE id = %s', (update.message.chat.id,))
+    curs.close()
+    conn.close()
+    update.message.reply_text('Вы отменили подписку на все новости')
 
 updater = Updater(TOKEN)
 
