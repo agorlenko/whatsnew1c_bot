@@ -1,7 +1,7 @@
 import os
 import psycopg2
 import urllib.parse as urlparse
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 
 
 def get_bot_token():
