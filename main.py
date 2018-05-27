@@ -26,7 +26,7 @@ TOKEN = get_bot_token()
 PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
-keyboard = [['Age', 'Favourite colour'], ['Number of siblings', 'Something else...'], ['Done']]    
+keyboard = [['Подписаться на все', 'Отменить подписку']]    
 markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=False)    
 
 def start(bot, update):
