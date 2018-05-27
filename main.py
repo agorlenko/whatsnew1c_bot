@@ -4,31 +4,12 @@ import urllib.parse as urlparse
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackQueryHandler, Filters
 
-
-def get_bot_token():
-    url = urlparse.urlparse(os.environ['DATABASE_URL'])
-    dbname = url.path[1:]
-    user = url.username
-    password = url.password
-    host = url.hostname    
-    try:
-        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=password)
-    except:
-        print('I am unable to connect to the database')
-        return None
-    cursor = conn.cursor()
-    cursor.execute('SELECT id FROM bot_params LIMIT 1')
-    row = cursor.fetchone()
-    return row[0]
-
 def get_db_conn_params():
     url = urlparse.urlparse(os.environ['DATABASE_URL'])
     return {'dbname': url.path[1:], 'user': url.username, 'password': url.password, 'host': url.hostname}
 
-print('start')
 TOKEN = os.environ['BOT_TOKEN']
 PORT = int(os.environ.get('PORT', '5000'))
-print('bot starting')
 
 keyboard = [['Подписаться на все', 'Отменить подписку']]    
 markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)    
@@ -62,7 +43,7 @@ def subscribe_to_all(update):
                     , (update.message.chat.id,))
     curs.close()
     conn.close()
-    update.message.reply_text('Вы успешно подписалиь на все новости')
+    update.message.reply_text('Вы успешно подписались на все новости')
 
 def unsubscribe_from_all(update):
     db_conn_params = get_db_conn_params()
@@ -71,7 +52,7 @@ def unsubscribe_from_all(update):
             curs.execute('DELETE FROM subscribers WHERE id = %s', (update.message.chat.id,))
     curs.close()
     conn.close()
-    update.message.reply_text('Вы отменили подписку на все новости')
+    update.message.reply_text('Подписка на все новости отменена')
 
 updater = Updater(TOKEN)
 
@@ -83,3 +64,5 @@ updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
 
 updater.bot.setWebhook("https://whatsnew1cbot.herokuapp.com/" + TOKEN)
 updater.idle()
+
+print('I am work')
