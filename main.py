@@ -26,10 +26,12 @@ TOKEN = get_bot_token()
 PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
+keyboard = [['Age', 'Favourite colour'], ['Number of siblings', 'Something else...'], ['Done']]    
+markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=False)    
+
 def start(bot, update):
-    keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'), InlineKeyboardButton("Option 2", callback_data='2')], [InlineKeyboardButton("Option 3", callback_data='3')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)    
-    update.message.reply_text('Hi!', reply_markup=reply_markup)
+    #keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'), InlineKeyboardButton("Option 2", callback_data='2')], [InlineKeyboardButton("Option 3", callback_data='3')]]
+    update.message.reply_text('Hi!', reply_markup=markup)
 
 def echo(bot, update):
     update.message.reply_text('Bot answer: ' + update.message.text)
