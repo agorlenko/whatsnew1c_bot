@@ -1,6 +1,7 @@
 import os
 import psycopg2
 import urllib.parse as urlparse
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import Updater, MessageHandler, CommandHandler, Filters
 
 
@@ -25,8 +26,11 @@ TOKEN = get_bot_token()
 PORT = int(os.environ.get('PORT', '5000'))
 print('bot starting')
 
+reply_keyboard = ['Подписаться', 'Отменить подписку']
+markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+
 def start(bot, update):
-    update.message.reply_text('Hi!')
+    update.message.reply_text('Hi!', reply_markup=markup)
 
 def echo(bot, update):
     update.message.reply_text('Bot answer: ' + update.message.text)
