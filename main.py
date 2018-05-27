@@ -55,7 +55,7 @@ def subscribe_to_all(update):
             curs.execute('SELECT id, subscribed_to_all FROM subscribers WHERE id = %s', (update.message.chat.id,))
             row = curs.fetchone()
             if not row:
-                curs.execute('INSERT INTO subscribers (id, first_name, last_name, subscribed_to_all) VALUES (%s, %s, %s)'
+                curs.execute('INSERT INTO subscribers (id, first_name, last_name, subscribed_to_all) VALUES (%s, %s, %s, %s)'
                     , (update.message.chat.id, update.message.chat.first_name, update.message.chat.last_name, True))
             elif not row[1]:
                 curs.execute('UPDATE subscribers SET subscribed_to_all = TRUE WHERE id = %s'
