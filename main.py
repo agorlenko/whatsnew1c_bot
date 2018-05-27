@@ -21,6 +21,10 @@ def get_bot_token():
     row = cursor.fetchone()
     return row[0]
 
+def get_db_conn_params():
+    url = urlparse.urlparse(os.environ['DATABASE_URL'])
+    return {'dbname': url.path[1:], 'user': url.username, 'password': url.password, 'host': url.hostname}
+
 print('start')
 TOKEN = os.environ['BOT_TOKEN']
 PORT = int(os.environ.get('PORT', '5000'))
@@ -45,7 +49,19 @@ def handler(bot, update):
         update.message.reply_text('Неизвестное действие')
 
 def subscribe_to_all(update):
-    #add_subscriber()
+    db_conn_params = get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('SELECT id, subscribed_to_all FROM subscribers WHERE id = %s', (update.message.chat.id,))
+            row = curs.fetchone()
+            if not row:
+                curs.execute('INSERT INTO subscribers (id, first_name, last_name, subscribed_to_all) VALUES (%s, %s, %s)'
+                    , (update.message.chat.id, update.message.chat.first_name, update.message.chat.last_name, True))
+            elif not row[1]:
+                curs.execute('UPDATE subscribers SET subscribed_to_all = TRUE WHERE id = %s'
+                    , (update.message.chat.id,))
+    curs.close()
+    conn.close()
     update.message.reply_text('Вы подписались на все.' + str(update.message.chat))
 
 def unsubscribe_from_all(update):
