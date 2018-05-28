@@ -39,6 +39,15 @@ def get_last_guid():
     conn.close()
     return last_guid
 
+def update_last_guid(new_guid, last_guid):
+    db_conn_params = db.get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('UPDATE bot_params SET last_guid = %s WHERE last_guid = %s'
+                , (new_guid, last_guid))
+    curs.close()
+    conn.close()
+
 def get_receivers():
     subscribers = []
     db_conn_params = db.get_db_conn_params()
@@ -53,7 +62,7 @@ def get_receivers():
     return subscribers
 
 def send_feed(updater, feed, receivers):
-    message_text = feed['title'] + '\n' + feed['description'] + feed['published']
+    message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
     for receiver in receivers:
         if receiver['subscribed_to_all']:
             updater.bot.send_message(receiver['id'], text=message_text)
@@ -63,6 +72,9 @@ if __name__ == '__main__':
     TOKEN = os.environ['BOT_TOKEN']
     updater = Updater(TOKEN)
     receivers = get_receivers()
-    new_feeds = get_new_feeds(get_last_guid())
+    last_guid = get_last_guid()
+    new_feeds = get_new_feeds(last_guid)
     for item in map(get_feed_struct, new_feeds):
         send_feed(updater, item, receivers)
+    if len(new_feeds) > 0:
+        update_last_guid(new_feeds[0].id, last_guid)
