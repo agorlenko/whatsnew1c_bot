@@ -1,12 +1,9 @@
+import db
 import os
 import psycopg2
 import urllib.parse as urlparse
 from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackQueryHandler, Filters
-
-def get_db_conn_params():
-    url = urlparse.urlparse(os.environ['DATABASE_URL'])
-    return {'dbname': url.path[1:], 'user': url.username, 'password': url.password, 'host': url.hostname}
 
 TOKEN = os.environ['BOT_TOKEN']
 PORT = int(os.environ.get('PORT', '5000'))
@@ -30,7 +27,7 @@ def handler(bot, update):
         update.message.reply_text('Неизвестное действие')
 
 def subscribe_to_all(update):
-    db_conn_params = get_db_conn_params()
+    db_conn_params = db.get_db_conn_params()
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
             curs.execute('SELECT id, subscribed_to_all FROM subscribers WHERE id = %s', (update.message.chat.id,))
@@ -46,7 +43,7 @@ def subscribe_to_all(update):
     update.message.reply_text('Вы успешно подписались на все новости')
 
 def unsubscribe_from_all(update):
-    db_conn_params = get_db_conn_params()
+    db_conn_params = db.get_db_conn_params()
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
             curs.execute('DELETE FROM subscribers WHERE id = %s', (update.message.chat.id,))
@@ -64,5 +61,3 @@ updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
 
 updater.bot.setWebhook("https://whatsnew1cbot.herokuapp.com/" + TOKEN)
 updater.idle()
-
-print('I am work')
