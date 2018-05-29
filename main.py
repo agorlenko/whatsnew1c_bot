@@ -61,7 +61,7 @@ def find_product(update):
     db_conn_params = db.get_db_conn_params()
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
-            curs.execute("SELECT id, name FROM products WHERE name ~* '.*%s.*'", (name,))
+            curs.execute("SELECT id, name FROM products WHERE name ~* '.*%s.*'", (update.message.text,))
             product_rows = curs.fetchall()
     curs.close()
     conn.close()
