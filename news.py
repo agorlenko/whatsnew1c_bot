@@ -62,10 +62,10 @@ def get_receivers():
     return subscribers
 
 def send_feed(updater, feed, receivers):
-    message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
+    message_text = feed['title'] + '<br />' + feed['description'] + '<br />' + feed['published']
     for receiver in receivers:
         if receiver['subscribed_to_all']:
-            updater.bot.send_message(receiver['id'], text=message_text)
+            updater.bot.send_message(receiver['id'], text=message_text, parse_mode=telegram.ParseMode.HTML)
 
 if __name__ == '__main__':
 
