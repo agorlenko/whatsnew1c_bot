@@ -23,6 +23,8 @@ def handler(bot, update):
         subscribe_to_all(update)
     elif update.message.text == 'Отменить подписку':
         unsubscribe_from_all(update)
+    elif update.message.text == 'Подписаться':
+        update.message.reply_text('Я обычный')
     else:
         find_product(update)
 
