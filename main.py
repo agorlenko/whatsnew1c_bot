@@ -30,8 +30,8 @@ def handler(bot, update):
 
 def callback_handler(update, context):
     #update.message.reply_text('Я колбэк')
-    updater.bot.send_message(410816255, text='Я колбэк')
     query = update.callback_query
+    updater.bot.send_message(410816255, text='Я колбэк ' + query.data)
     update.message.reply_text(query.data)
 
 def subscribe_to_all(update):
