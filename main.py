@@ -29,7 +29,8 @@ def handler(bot, update):
         find_product(update)
 
 def callback_handler(update, context):
-    update.message.reply_text('Я колбэк')
+    #update.message.reply_text('Я колбэк')
+    updater.bot.send_message(410816255, text='Я колбэк')
     query = update.callback_query
     update.message.reply_text(query.data)
 
