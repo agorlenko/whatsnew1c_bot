@@ -56,6 +56,7 @@ def unsubscribe_from_all(update):
     update.message.reply_text('Подписка на все новости отменена')
 
 def find_product(update):
+    update.message.reply_text('Ищу продукты...')
     product_rows = []
     db_conn_params = db.get_db_conn_params()
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
@@ -66,6 +67,7 @@ def find_product(update):
     conn.close()
 
     for row in product_rows:
+        update.message.reply_text('Что-то нашел...')
         keyboard = [[InlineKeyboardButton("Подписаться", callback_data=row[0]), InlineKeyboardButton("Отписаться", callback_data=row[0])]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(row[1], reply_markup=reply_markup)
