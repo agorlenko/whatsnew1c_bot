@@ -30,6 +30,7 @@ def handler(bot, update):
 
 def callback_handler(update, context):
     updater.bot.send_message(410816255, text='Я колбэк ')
+    updater.bot.send_message(410816255, text='Сейчас что-то может случиться...')
     query = update.callback_query
     updater.bot.send_message(410816255, text='Еще колбэк')
     updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
