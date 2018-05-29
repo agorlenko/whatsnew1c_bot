@@ -24,7 +24,11 @@ def handler(bot, update):
     elif update.message.text == 'Отменить подписку':
         unsubscribe_from_all(update)
     else:
-        update.message.reply_text('Неизвестное действие')
+        find_product(update)
+
+def callback_handler(update, context):
+    query = update.callback_query
+    update.message.reply_text(query.data)
 
 def subscribe_to_all(update):
     db_conn_params = db.get_db_conn_params()
@@ -51,13 +55,43 @@ def unsubscribe_from_all(update):
     conn.close()
     update.message.reply_text('Подписка на все новости отменена')
 
-updater = Updater(TOKEN)
+def find_product(update):
+    product_rows = []
+    db_conn_params = db.get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute("SELECT id, name FROM products WHERE name ~* '.*%s.*'", (name,))
+            product_rows = curs.fetchall()
+    curs.close()
+    conn.close()
 
-# add handlers
-updater.dispatcher.add_handler(CommandHandler("start", start))
-updater.dispatcher.add_handler(MessageHandler(Filters.text, handler))
+    for row in product_rows:
+        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=row[0]), InlineKeyboardButton("Отписаться", callback_data=row[0])]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        update.message.reply_text(row[1], reply_markup=reply_markup)
 
-updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+def add_product(name):
+    db_conn_params = db.get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute("SELECT * FROM products WHERE name ~* '.*%s.*'", (name,))
+            row = curs.fetchone()
+            if not row:
+                curs.execute('INSERT INTO products (name) VALUES (%s)'
+                    , (name))
+    curs.close()
+    conn.close()
 
-updater.bot.setWebhook("https://whatsnew1cbot.herokuapp.com/" + TOKEN)
-updater.idle()
+if __name__ == '__main__':
+
+    updater = Updater(TOKEN)
+
+    # add handlers
+    updater.dispatcher.add_handler(CommandHandler("start", start))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text, handler))
+    updater.dispatcher.add_handler(CallbackQueryHandler(callback_handler))
+
+    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+
+    updater.bot.setWebhook("https://whatsnew1cbot.herokuapp.com/" + TOKEN)
+    updater.idle()
