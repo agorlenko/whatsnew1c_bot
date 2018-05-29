@@ -3,6 +3,7 @@ import feedparser as fp
 import psycopg2
 import os
 import urllib.parse as urlparse
+import telegram
 from telegram.ext import Updater
 
 def get_new_feeds(last_guid):
