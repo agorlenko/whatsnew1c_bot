@@ -28,13 +28,31 @@ def handler(bot, update):
         find_product(update)
 
 def callback_handler(bot, update):
-    updater.bot.send_message(410816255, text='Я колбэк ')
-    updater.bot.send_message(410816255, text='Сейчас что-то может случиться...')
+    #updater.bot.send_message(410816255, text='Я колбэк ')
+    #updater.bot.send_message(410816255, text='Сейчас что-то может случиться...')
     query = update.callback_query
-    updater.bot.send_message(410816255, text='Еще колбэк')
-    updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
-    updater.bot.send_message(410816255, text='query.data ' + query.data)
+    if not query:
+        return
+    #updater.bot.send_message(410816255, text='Еще колбэк')
+    #updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
+    #updater.bot.send_message(410816255, text='query.data ' + query.data)
+    #updater.bot.send_message(410816255, text='query.data ' + query.data)
     #update.message.reply_text(query.data)
+    handler_params = json.loads(query.data)
+    if handler_params['operation'] == 'subscribe':
+        result = subscribe_to_product(update.message.chat.id, handler_params['product_id'])
+        if result == 0:
+            updater.bot.send_message(update.message.chat.id, text='Вы успешно подписались на ' + query.text)
+        elif result == 2:
+            updater.bot.send_message(update.message.chat.id, text='Вы уже подписаны на ' +  + query.text)
+        else:
+            updater.bot.send_message(update.message.chat.id, text='Не удалось подписаться на ' +  + query.text)
+    elif handler_params['operation'] == 'unsubscribe':
+        result = unsubscribe_from_product(update.message.chat.id, handler_params['product_id'])
+        if result == 0:
+            updater.bot.send_message(update.message.chat.id, text='Подписка на ' + query.text + 'отменена')
+        else:
+            updater.bot.send_message(update.message.chat.id, text='Не удалось отменить подписку на ' +  + query.text)
 
 def subscribe_to_all(update):
     db_conn_params = db.get_db_conn_params()
@@ -52,6 +70,22 @@ def subscribe_to_all(update):
     conn.close()
     update.message.reply_text('Вы успешно подписались на все новости')
 
+def subscribe_to_product(chat_id, product_id):
+    db_conn_params = db.get_db_conn_params()
+    result = None
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('SELECT id, product_id FROM subscriptions_to_products WHERE id = %s and product_is = %s', (chat_id, product_id))
+            row = curs.fetchone()
+            if not row:
+                curs.execute('INSERT INTO subscriptions_to_products (id, product_id) VALUES (%s, %s)', (chat_id, product_id))
+            else:
+                result = 2
+    curs.close()
+    conn.close()
+    result = 0
+    return result
+
 def unsubscribe_from_all(update):
     db_conn_params = db.get_db_conn_params()
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
@@ -60,6 +94,17 @@ def unsubscribe_from_all(update):
     curs.close()
     conn.close()
     update.message.reply_text('Подписка на все новости отменена')
+
+def unsubscribe_from_product(chat_id, product_id):
+    db_conn_params = db.get_db_conn_params()
+    result = None
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('DELETE FROM subscriptions_to_products WHERE id = %s and product_is = %s', (chat_id, product_id))
+    curs.close()
+    conn.close()
+    result = 0
+    return result
 
 def find_product(update):
     update.message.reply_text('Ищу продукты...')
