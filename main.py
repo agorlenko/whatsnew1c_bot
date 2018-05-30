@@ -24,8 +24,6 @@ def handler(bot, update):
         subscribe_to_all(update)
     elif update.message.text == 'Отменить подписку':
         unsubscribe_from_all(update)
-    elif update.message.text == 'Подписаться':
-        update.message.reply_text('Я обычный')
     else:
         find_product(update)
 
@@ -35,6 +33,7 @@ def callback_handler(bot, update):
     query = update.callback_query
     updater.bot.send_message(410816255, text='Еще колбэк')
     updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
+    updater.bot.send_message(410816255, text='query.data ' + query.data)
     #update.message.reply_text(query.data)
 
 def subscribe_to_all(update):
@@ -75,8 +74,8 @@ def find_product(update):
 
     for row in product_rows:
         update.message.reply_text('Что-то нашел...')
-        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'event': 'subscribe', 'product_id': row[0]})),
-            InlineKeyboardButton("Отписаться", callback_data=json.dumps({'event': 'unsubscribe', 'product_id': row[0]}))]]
+        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0]})),
+            InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(row[1], reply_markup=reply_markup)
 
