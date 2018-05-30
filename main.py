@@ -74,7 +74,7 @@ def find_product(update):
 
     for row in product_rows:
         update.message.reply_text('Что-то нашел...')
-        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=row[0]), InlineKeyboardButton("Отписаться", callback_data=row[0])]]
+        keyboard = [[InlineKeyboardButton("Подписаться", callback_data={'event': 'subscribe', 'product_id': row[0]}), InlineKeyboardButton("Отписаться", callback_data={'event': 'unsubscribe', 'product_id': row[0]})]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(row[1], reply_markup=reply_markup)
 
