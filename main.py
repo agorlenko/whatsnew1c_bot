@@ -29,11 +29,11 @@ def handler(bot, update):
 
 def callback_handler(bot, update):
     updater.bot.send_message(410816255, text='Я колбэк ')
-    updater.bot.send_message(410816255, text='chat id = ' + str(update.message.chat.id))
     #updater.bot.send_message(410816255, text='Сейчас что-то может случиться...')
     query = update.callback_query
     if not query:
         return
+    updater.bot.send_message(410816255, text='chat id = ' + str(update.callback_query.chat.id))
     #updater.bot.send_message(410816255, text='Еще колбэк')
     #updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
     #updater.bot.send_message(410816255, text='query.data ' + query.data)
