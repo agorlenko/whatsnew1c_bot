@@ -33,8 +33,8 @@ def callback_handler(bot, update):
     query = update.callback_query
     if not query:
         return
+    updater.bot.send_message(410816255, text='Еще колбэк')
     updater.bot.send_message(410816255, text='chat id = ' + str(query.chat))
-    #updater.bot.send_message(410816255, text='Еще колбэк')
     #updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
     #updater.bot.send_message(410816255, text='query.data ' + query.data)
     #updater.bot.send_message(410816255, text='query.data ' + query.data)
