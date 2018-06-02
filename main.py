@@ -111,7 +111,7 @@ def unsubscribe_from_product(chat_id, product_id):
     result = None
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
-            curs.execute('DELETE FROM subscriptions_to_products WHERE id = %s and product_is = %s', (chat_id, product_id))
+            curs.execute('DELETE FROM subscriptions_to_products WHERE id = %s and product_id = %s', (chat_id, product_id))
     curs.close()
     conn.close()
     result = 0
