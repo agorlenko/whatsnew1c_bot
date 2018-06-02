@@ -94,7 +94,8 @@ def subscribe_to_product(chat_id, product_id):
                 result = 2
     curs.close()
     conn.close()
-    result = 0
+    if not result:
+        result = 0
     return result
 
 def unsubscribe_from_all(update):
