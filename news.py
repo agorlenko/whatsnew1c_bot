@@ -78,4 +78,5 @@ if __name__ == '__main__':
     for item in map(get_feed_struct, new_feeds):
         send_feed(updater, item, receivers)
     if len(new_feeds) > 0:
+        print('new guid = ' + str(new_feeds[0].id))
         update_last_guid(new_feeds[0].id, last_guid)
