@@ -28,34 +28,35 @@ def handler(bot, update):
         find_product(update)
 
 def callback_handler(bot, update):
-    updater.bot.send_message(410816255, text='Я колбэк ')
+    #updater.bot.send_message(410816255, text='Я колбэк ')
     #updater.bot.send_message(410816255, text='Сейчас что-то может случиться...')
     query = update.callback_query
     if not query:
         return
-    updater.bot.send_message(410816255, text='Еще колбэк')
-    updater.bot.send_message(410816255, text='chat id = ' + str(query.from_user.id))
-    updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
-    updater.bot.send_message(410816255, text='type query = ' + str(type(query)))
-    updater.bot.send_message(410816255, text='chat = ' + str(query.chat))
+    #updater.bot.send_message(410816255, text='Еще колбэк')
+    #updater.bot.send_message(410816255, text='chat id = ' + str(query.from_user.id))
+    #updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
+    #updater.bot.send_message(410816255, text='type query = ' + str(type(query)))
+    #updater.bot.send_message(410816255, text='chat = ' + str(query.chat))
     #updater.bot.send_message(410816255, text='query.data ' + query.data)
     #updater.bot.send_message(410816255, text='query.data ' + query.data)
     #update.message.reply_text(query.data)
     handler_params = json.loads(query.data)
+    chat_id = query.from_user.id
     if handler_params['operation'] == 'subscribe':
-        result = subscribe_to_product(update.message.chat.id, handler_params['product_id'])
+        result = subscribe_to_product(chat_id, handler_params['product_id'])
         if result == 0:
-            updater.bot.send_message(update.message.chat.id, text='Вы успешно подписались на ' + query.text)
+            updater.bot.send_message(chat_id, text='Вы успешно подписались на ' + query.text)
         elif result == 2:
-            updater.bot.send_message(update.message.chat.id, text='Вы уже подписаны на ' +  + query.text)
+            updater.bot.send_message(chat_id, text='Вы уже подписаны на ' +  + query.text)
         else:
-            updater.bot.send_message(update.message.chat.id, text='Не удалось подписаться на ' +  + query.text)
+            updater.bot.send_message(chat_id, text='Не удалось подписаться на ' +  + query.text)
     elif handler_params['operation'] == 'unsubscribe':
-        result = unsubscribe_from_product(update.message.chat.id, handler_params['product_id'])
+        result = unsubscribe_from_product(chat_id, handler_params['product_id'])
         if result == 0:
-            updater.bot.send_message(update.message.chat.id, text='Подписка на ' + query.text + 'отменена')
+            updater.bot.send_message(chat_id, text='Подписка на ' + query.text + 'отменена')
         else:
-            updater.bot.send_message(update.message.chat.id, text='Не удалось отменить подписку на ' +  + query.text)
+            updater.bot.send_message(chat_id, text='Не удалось отменить подписку на ' +  + query.text)
 
 def subscribe_to_all(update):
     db_conn_params = db.get_db_conn_params()
