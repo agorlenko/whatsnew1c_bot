@@ -1,6 +1,7 @@
 import db
 import feedparser as fp
 import psycopg2
+import re
 import os
 import urllib.parse as urlparse
 import telegram
@@ -64,8 +65,8 @@ def get_receivers():
 
 def send_feed(updater, feed, receivers):
     message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
-    message_text = message_text.replace(r'<span style="font-weight: bold;">ТЕСТОВАЯ</span>', '')
-    print('try send: ' + message_text)
+    regexp = re.compile(r'<span.*>(?P<value>.*)</span>')
+    message_text = regexp.sub(r'\g<1>', message_text)
     for receiver in receivers:
         if receiver['subscribed_to_all']:
             updater.bot.send_message(receiver['id'], text=message_text, parse_mode=telegram.ParseMode.HTML)
@@ -80,5 +81,4 @@ if __name__ == '__main__':
     for item in map(get_feed_struct, new_feeds):
         send_feed(updater, item, receivers)
     if len(new_feeds) > 0:
-        print('new guid = ' + str(new_feeds[0].id))
         update_last_guid(new_feeds[0].id, last_guid)
