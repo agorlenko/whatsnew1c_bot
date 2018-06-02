@@ -47,6 +47,7 @@ def callback_handler(bot, update):
     if handler_params['operation'] == 'subscribe':
         updater.bot.send_message(chat_id, text='Начинаем подписку')
         result = subscribe_to_product(chat_id, handler_params['product_id'])
+        updater.bot.send_message(chat_id, text='result = ' + str(result))
         if result == 0:
             updater.bot.send_message(chat_id, text='Вы успешно подписались на ' + query.text)
         elif result == 2:
