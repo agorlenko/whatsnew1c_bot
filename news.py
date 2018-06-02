@@ -64,6 +64,7 @@ def get_receivers():
 
 def send_feed(updater, feed, receivers):
     message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
+    message_text = message_text.replace(r'<span style="font-weight: bold;">ТЕСТОВАЯ</span>', '')
     print('try send: ' + message_text)
     for receiver in receivers:
         if receiver['subscribed_to_all']:
