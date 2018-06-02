@@ -83,7 +83,7 @@ def subscribe_to_product(chat_id, product_id):
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
             updater.bot.send_message(chat_id, text='проверяем выборку')
-            curs.execute('SELECT id, product_id FROM subscriptions_to_products WHERE id = %s and product_is = %s', (chat_id, product_id))
+            curs.execute('SELECT id, product_id FROM subscriptions_to_products WHERE id = %s and product_id = %s', (chat_id, product_id))
             row = curs.fetchone()
             if not row:
                 updater.bot.send_message(chat_id, text='записей нет')
