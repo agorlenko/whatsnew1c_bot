@@ -64,6 +64,7 @@ def get_receivers():
 
 def send_feed(updater, feed, receivers):
     message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
+    print('try send: ' + message_text)
     for receiver in receivers:
         if receiver['subscribed_to_all']:
             updater.bot.send_message(receiver['id'], text=message_text, parse_mode=telegram.ParseMode.HTML)
