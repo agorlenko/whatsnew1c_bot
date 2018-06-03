@@ -49,17 +49,17 @@ def callback_handler(bot, update):
         result = subscribe_to_product(chat_id, handler_params['product_id'])
         updater.bot.send_message(chat_id, text='result = ' + str(result))
         if result == 0:
-            updater.bot.send_message(chat_id, text='Вы успешно подписались на ' + query.text)
+            updater.bot.send_message(chat_id, text='Вы успешно подписались на ' + handler_params['product_name'])
         elif result == 2:
-            updater.bot.send_message(chat_id, text='Вы уже подписаны на ' +  + query.text)
+            updater.bot.send_message(chat_id, text='Вы уже подписаны на ' +  + handler_params['product_name'])
         else:
-            updater.bot.send_message(chat_id, text='Не удалось подписаться на ' +  + query.text)
+            updater.bot.send_message(chat_id, text='Не удалось подписаться на ' +  + handler_params['product_name'])
     elif handler_params['operation'] == 'unsubscribe':
         result = unsubscribe_from_product(chat_id, handler_params['product_id'])
         if result == 0:
-            updater.bot.send_message(chat_id, text='Подписка на ' + query.text + 'отменена')
+            updater.bot.send_message(chat_id, text='Подписка на ' + handler_params['product_name'] + 'отменена')
         else:
-            updater.bot.send_message(chat_id, text='Не удалось отменить подписку на ' +  + query.text)
+            updater.bot.send_message(chat_id, text='Не удалось отменить подписку на ' +  + handler_params['product_name'])
 
 def subscribe_to_all(update):
     db_conn_params = db.get_db_conn_params()
@@ -131,8 +131,8 @@ def find_product(update):
 
     for row in product_rows:
         update.message.reply_text('Что-то нашел...')
-        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0]})),
-            InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
+        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0], 'product_name': row[1]})),
+            InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0], 'product_name': row[1]}))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(row[1], reply_markup=reply_markup)
 
