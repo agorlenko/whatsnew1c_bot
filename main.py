@@ -28,38 +28,25 @@ def handler(bot, update):
         find_product(update)
 
 def callback_handler(bot, update):
-    #updater.bot.send_message(410816255, text='Я колбэк ')
-    #updater.bot.send_message(410816255, text='Сейчас что-то может случиться...')
     query = update.callback_query
     if not query:
         return
-    #updater.bot.send_message(410816255, text='Еще колбэк')
-    #updater.bot.send_message(410816255, text='chat id = ' + str(query.from_user.id))
-    #updater.bot.send_message(410816255, text='Я колбэк ' + str(query))
-    #updater.bot.send_message(410816255, text='type query = ' + str(type(query)))
-    #updater.bot.send_message(410816255, text='chat = ' + str(query.chat))
-    #updater.bot.send_message(410816255, text='query.data ' + query.data)
-    #updater.bot.send_message(410816255, text='query.data ' + query.data)
-    #update.message.reply_text(query.data)
     handler_params = json.loads(query.data)
     chat_id = query.from_user.id
-    updater.bot.send_message(chat_id, text='Определены параметры')
     if handler_params['operation'] == 'subscribe':
-        updater.bot.send_message(chat_id, text='Начинаем подписку')
         result = subscribe_to_product(chat_id, handler_params['product_id'])
-        updater.bot.send_message(chat_id, text='result = ' + str(result))
         if result == 0:
-            updater.bot.send_message(chat_id, text='Вы успешно подписались на ' + handler_params['product_name'])
+            updater.bot.send_message(chat_id, text='Вы успешно подписались этот продукт')
         elif result == 2:
-            updater.bot.send_message(chat_id, text='Вы уже подписаны на ' +  + handler_params['product_name'])
+            updater.bot.send_message(chat_id, text='Вы уже подписаны на этот продукт')
         else:
-            updater.bot.send_message(chat_id, text='Не удалось подписаться на ' +  + handler_params['product_name'])
+            updater.bot.send_message(chat_id, text='Не удалось подписаться на этот продукт')
     elif handler_params['operation'] == 'unsubscribe':
         result = unsubscribe_from_product(chat_id, handler_params['product_id'])
         if result == 0:
-            updater.bot.send_message(chat_id, text='Подписка на ' + handler_params['product_name'] + 'отменена')
+            updater.bot.send_message(chat_id, text='Подписка отменена')
         else:
-            updater.bot.send_message(chat_id, text='Не удалось отменить подписку на ' +  + handler_params['product_name'])
+            updater.bot.send_message(chat_id, text='Не удалось отменить подписку')
 
 def subscribe_to_all(update):
     db_conn_params = db.get_db_conn_params()
@@ -131,9 +118,7 @@ def find_product(update):
 
     for row in product_rows:
         update.message.reply_text('Что-то нашел...')
-        update.message.reply_text('row[1] = ' + str(row[1]))
-        update.message.reply_text('type(row[1]) = ' + str(type(row[1])))
-        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'test': 'Управлениеторговлей', 'product_id': row[0]})),
+        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0]})),
             InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text('Что-то нашел1...')
