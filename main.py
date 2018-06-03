@@ -131,6 +131,7 @@ def find_product(update):
 
     for row in product_rows:
         update.message.reply_text('Что-то нашел...')
+        update.message.reply_text('row[1] = ' + str(row[1]))
         keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'test': row[1], 'product_id': row[0]})),
             InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
