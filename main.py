@@ -166,7 +166,7 @@ def product_list(update):
                     update.message.reply_text('У вас нет подписок')
                 else:
                     for row in rows:
-                        keyboard = [[InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
+                        keyboard = [InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]
                         reply_markup = InlineKeyboardMarkup(keyboard)
                         update.message.reply_text(row[1], reply_markup=reply_markup)
     curs.close()
