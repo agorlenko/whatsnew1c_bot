@@ -86,6 +86,7 @@ def subscribe_to_product(chat_id, first_name, last_name, product_id):
             row = curs.fetchone()
             if not row:
                 updater.bot.send_message(chat_id, text='Подписки на продукт нет, добавляем')
+                updater.bot.send_message(chat_id, text='product_id = ' + str(product_id))
                 curs.execute('INSERT INTO subscriptions_to_products (id, product_id) VALUES (%s, %s)', (chat_id, product_id))
                 updater.bot.send_message(chat_id, text='Добавили подписку на продукт')
             else:
