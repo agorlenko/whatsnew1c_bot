@@ -152,7 +152,6 @@ def product_list(update):
             if row and row[1]:
                 update.message.reply_text('Вы подписаны на все новости')
             else:
-                update.message.reply_text('Проверяем детальные подписки')
                 sql = """
                     SELECT
                         SP.product_id AS product_id,
@@ -165,10 +164,7 @@ def product_list(update):
                 if not rows:
                     update.message.reply_text('У вас нет подписок')
                 else:
-                    update.message.reply_text('Всего подписок ' + str(len(rows)))
                     for row in rows:
-                        update.message.reply_text('row[0] = ' + str(row[0]))
-                        update.message.reply_text('row[1] = ' + str(row[1]))
                         keyboard = [[InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
                         reply_markup = InlineKeyboardMarkup(keyboard)
                         update.message.reply_text(row[1], reply_markup=reply_markup)
