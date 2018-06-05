@@ -36,11 +36,11 @@ def callback_handler(bot, update):
     if handler_params['operation'] == 'subscribe':
         result = subscribe_to_product(chat_id, handler_params['product_id'])
         if result == 0:
-            updater.bot.send_message(chat_id, text='Вы успешно подписались этот продукт')
+            updater.bot.send_message(chat_id, text='Вы успешно подписались на продукт')
         elif result == 2:
-            updater.bot.send_message(chat_id, text='Вы уже подписаны на этот продукт')
+            updater.bot.send_message(chat_id, text='Вы уже подписаны на продукт')
         else:
-            updater.bot.send_message(chat_id, text='Не удалось подписаться на этот продукт')
+            updater.bot.send_message(chat_id, text='Не удалось подписаться на продукт')
     elif handler_params['operation'] == 'unsubscribe':
         result = unsubscribe_from_product(chat_id, handler_params['product_id'])
         if result == 0:
@@ -106,18 +106,16 @@ def unsubscribe_from_product(chat_id, product_id):
     return result
 
 def find_product(update):
-    update.message.reply_text('Ищу продукты...')
     product_rows = []
     db_conn_params = db.get_db_conn_params()
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
-            curs.execute("SELECT id, name FROM products WHERE name ~* '.*" + update.message.text + ".*'")
+            curs.execute('SELECT id, name FROM products WHERE name ~* %s', (update.message.text,))
             product_rows = curs.fetchall()
     curs.close()
     conn.close()
 
     for row in product_rows:
-        update.message.reply_text('Что-то нашел...')
         keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0]})),
             InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
         reply_markup = InlineKeyboardMarkup(keyboard)
