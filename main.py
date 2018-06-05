@@ -152,6 +152,7 @@ def product_list(update):
             if row and row[1]:
                 update.message.reply_text('Вы подписаны на все новости')
             else:
+                update.message.reply_text('Проверяем детальные подписки')
                 sql = """
                     SELECT
                         SP.product_id AS product_id,
