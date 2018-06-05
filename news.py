@@ -5,6 +5,7 @@ import re
 import os
 import urllib.parse as urlparse
 import telegram
+import main
 from telegram.ext import Updater
 
 def get_new_feeds(last_guid):
@@ -109,7 +110,11 @@ if __name__ == '__main__':
     subscriptions_to_products = get_subscriptions_to_products()
     last_guid = get_last_guid()
     new_feeds = get_new_feeds(last_guid)
+    feed_products = set({})    
     for item in map(get_feed_struct, new_feeds):
         send_feed(updater, item, receivers, subscriptions_to_products)
+        feed_products.union(item['products'])
     if len(new_feeds) > 0:
         update_last_guid(new_feeds[0].id, last_guid)
+    for product in feed_products:
+        main.add_product(product)

@@ -9,7 +9,7 @@ from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackQueryH
 TOKEN = os.environ['BOT_TOKEN']
 PORT = int(os.environ.get('PORT', '5000'))
 
-keyboard = [['Подписаться на все', 'Отменить подписку'], ['Подписаться на продукт', 'Мои подписки']]    
+keyboard = [['Подписаться на все', 'Отменить подписку на все'], ['Подписаться на продукт', 'Мои подписки']]    
 markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)    
 
 def start(bot, update):
@@ -22,7 +22,7 @@ def echo(bot, update):
 def handler(bot, update):
     if update.message.text == 'Подписаться на все':
         subscribe_to_all(update)
-    elif update.message.text == 'Отменить подписку':
+    elif update.message.text == 'Отменить подписку на все':
         unsubscribe_from_all(update)
     elif update.message.text == 'Подписаться на продукт':
         update.message.reply_text('Введите наименование продукта')
@@ -38,7 +38,7 @@ def callback_handler(bot, update):
     handler_params = json.loads(query.data)
     chat_id = query.from_user.id
     if handler_params['operation'] == 'subscribe':
-        result = subscribe_to_product(chat_id, handler_params['product_id'])
+        result = subscribe_to_product(chat_id, query.from_user.first_name, query.from_user.last_name, handler_params['product_id'])
         if result == 0:
             updater.bot.send_message(chat_id, text='Вы успешно подписались на продукт')
         elif result == 2:
@@ -68,11 +68,16 @@ def subscribe_to_all(update):
     conn.close()
     update.message.reply_text('Вы успешно подписались на все новости')
 
-def subscribe_to_product(chat_id, product_id):
+def subscribe_to_product(chat_id, first_name, last_name, product_id):
     db_conn_params = db.get_db_conn_params()
     result = None
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
+            curs.execute('SELECT id, subscribed_to_all FROM subscribers WHERE id = %s', (chat_id,))
+            row = curs.fetchone()
+            if not row:
+                curs.execute('INSERT INTO subscribers (id, first_name, last_name, subscribed_to_all) VALUES (%s, %s, %s, %s)'
+                    , (chat_id, first_name, last_name, False))
             curs.execute('SELECT id, product_id FROM subscriptions_to_products WHERE id = %s and product_id = %s', (chat_id, product_id))
             row = curs.fetchone()
             if not row:
@@ -156,10 +161,13 @@ def product_list(update):
                         ON SP.id = %s SP.product_id = P.id """
                 curs.execute(sql, (update.message.chat.id,))
                 rows = curs.fetchall()
-                for row in rows:
-                    keyboard = [[InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
-                    reply_markup = InlineKeyboardMarkup(keyboard)
-                    update.message.reply_text(row[1], reply_markup=reply_markup)
+                if not rows:
+                    update.message.reply_text('У вас нет подписок')
+                else:
+                    for row in rows:
+                        keyboard = [[InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
+                        reply_markup = InlineKeyboardMarkup(keyboard)
+                        update.message.reply_text(row[1], reply_markup=reply_markup)
     curs.close()
     conn.close()
 
