@@ -159,7 +159,7 @@ def product_list(update):
                         P.name AS product_name
                     FROM subscriptions_to_products AS SP
                         INNER JOIN products AS P
-                        ON SP.id = %s SP.product_id = P.id """
+                        ON SP.id = %s AND SP.product_id = P.id """
                 curs.execute(sql, (update.message.chat.id,))
                 rows = curs.fetchall()
                 if not rows:
