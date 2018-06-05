@@ -165,6 +165,7 @@ def product_list(update):
                 if not rows:
                     update.message.reply_text('У вас нет подписок')
                 else:
+                    update.message.reply_text('Всего подписок ' + str(len(rows)))
                     for row in rows:
                         update.message.reply_text('row[0] = ' + str(row[0]))
                         update.message.reply_text('row[1] = ' + str(row[1]))
