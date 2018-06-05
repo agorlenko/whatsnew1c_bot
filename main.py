@@ -9,7 +9,7 @@ from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackQueryH
 TOKEN = os.environ['BOT_TOKEN']
 PORT = int(os.environ.get('PORT', '5000'))
 
-keyboard = [['Подписаться на все', 'Отменить подписку']]    
+keyboard = [['Подписаться на все', 'Отменить подписку'], ['Подписаться на продукт', 'Мои подписки']]    
 markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)    
 
 def start(bot, update):
@@ -24,6 +24,10 @@ def handler(bot, update):
         subscribe_to_all(update)
     elif update.message.text == 'Отменить подписку':
         unsubscribe_from_all(update)
+    elif update.message.text == 'Подписаться на продукт':
+        update.message.reply_text('Введите наименование продукта')
+    elif update.message.text == 'Мои подписки':
+        product_list(update)
     else:
         find_product(update)
 
@@ -69,15 +73,11 @@ def subscribe_to_product(chat_id, product_id):
     result = None
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
-            updater.bot.send_message(chat_id, text='проверяем выборку')
             curs.execute('SELECT id, product_id FROM subscriptions_to_products WHERE id = %s and product_id = %s', (chat_id, product_id))
             row = curs.fetchone()
             if not row:
-                updater.bot.send_message(chat_id, text='записей нет')
                 curs.execute('INSERT INTO subscriptions_to_products (id, product_id) VALUES (%s, %s)', (chat_id, product_id))
-                updater.bot.send_message(chat_id, text='вставили')
             else:
-                updater.bot.send_message(chat_id, text='записи есть')
                 result = 2
     curs.close()
     conn.close()
@@ -115,12 +115,16 @@ def find_product(update):
     curs.close()
     conn.close()
 
-    for row in product_rows:
-        keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0]})),
-            InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        update.message.reply_text('Что-то нашел1...')
-        update.message.reply_text(row[1], reply_markup=reply_markup)
+    if not product_rows:
+        update.message.reply_text('Ничего не нашел')
+    elif len(product_rows) > 15:
+        update.message.reply_text('Слишком много результатов. Попробуйте уточнить условия поиска.')
+    else:
+        for row in product_rows:
+            keyboard = [[InlineKeyboardButton("Подписаться", callback_data=json.dumps({'operation': 'subscribe', 'product_id': row[0]})),
+                InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            update.message.reply_text(row[1], reply_markup=reply_markup)
 
 def add_product(name):
     db_conn_params = db.get_db_conn_params()
@@ -131,6 +135,31 @@ def add_product(name):
             if not row:
                 curs.execute('INSERT INTO products (name) VALUES (%s)'
                     , (name))
+    curs.close()
+    conn.close()
+
+def product_list(update):
+    db_conn_params = db.get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            curs.execute('SELECT id, subscribed_to_all FROM subscribers WHERE id = %s', (update.message.chat.id,))
+            row = curs.fetchone()
+            if row and row[1]:
+                update.message.reply_text('Вы подписаны на все новости')
+            else:
+                sql = """
+                    SELECT
+                        SP.product_id AS product_id,
+                        P.name AS product_name
+                    FROM subscriptions_to_products AS SP
+                        INNER JOIN products AS P
+                        ON SP.id = %s SP.product_id = P.id """
+                curs.execute(sql, (update.message.chat.id,))
+                rows = curs.fetchall()
+                for row in rows:
+                    keyboard = [[InlineKeyboardButton("Отписаться", callback_data=json.dumps({'operation': 'unsubscribe', 'product_id': row[0]}))]]
+                    reply_markup = InlineKeyboardMarkup(keyboard)
+                    update.message.reply_text(row[1], reply_markup=reply_markup)
     curs.close()
     conn.close()
 

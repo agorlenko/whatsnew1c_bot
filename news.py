@@ -63,12 +63,42 @@ def get_receivers():
     conn.close()
     return subscribers
 
-def send_feed(updater, feed, receivers):
+def get_subscriptions_to_products():
+    subscriptions_to_products = {}
+    db_conn_params = db.get_db_conn_params()
+    with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
+        with conn.cursor() as curs:
+            sql = """
+                SELECT
+                    SP.id AS user_id,
+                    SP.product_id AS product_id,
+                    P.name AS product_name
+                FROM subscriptions_to_products AS SP
+                    INNER JOIN products AS P
+                    ON SP.product_id = P.id """
+            curs.execute(sql)
+            rows = curs.fetchall()
+            for row in rows:
+                if not row[0] in subscriptions_to_products:
+                    subscriptions_to_products[row[0]] = []    
+                subscriptions_to_products[row[0]].append((row[1], row[2]))
+    curs.close()
+    conn.close()
+    return subscriptions_to_products
+
+def need_send(feed, receiver, subscriptions_to_products):
+    if receiver['subscribed_to_all']:
+        return True
+    if not receiver['id'] in subscriptions_to_products:
+        return False
+    return set(feed['products']) & set(subscriptions_to_products[receiver['id']])
+
+def send_feed(updater, feed, receivers, subscriptions_to_products):
     message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
     regexp = re.compile(r'<span.*>(?P<value>.*)</span>')
     message_text = regexp.sub(r'\g<1>', message_text)
     for receiver in receivers:
-        if receiver['subscribed_to_all']:
+        if need_send(feed, receiver, subscriptions_to_products):
             updater.bot.send_message(receiver['id'], text=message_text, parse_mode=telegram.ParseMode.HTML)
 
 if __name__ == '__main__':
@@ -76,9 +106,10 @@ if __name__ == '__main__':
     TOKEN = os.environ['BOT_TOKEN']
     updater = Updater(TOKEN)
     receivers = get_receivers()
+    subscriptions_to_products = get_subscriptions_to_products()
     last_guid = get_last_guid()
     new_feeds = get_new_feeds(last_guid)
     for item in map(get_feed_struct, new_feeds):
-        send_feed(updater, item, receivers)
+        send_feed(updater, item, receivers, subscriptions_to_products)
     if len(new_feeds) > 0:
         update_last_guid(new_feeds[0].id, last_guid)
