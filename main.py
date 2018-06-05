@@ -73,15 +73,21 @@ def subscribe_to_product(chat_id, first_name, last_name, product_id):
     result = None
     with psycopg2.connect(dbname=db_conn_params['dbname'], user=db_conn_params['user'], host=db_conn_params['host'], password=db_conn_params['password']) as conn:
         with conn.cursor() as curs:
+            updater.bot.send_message(chat_id, text='Проверяем подписчиков')
             curs.execute('SELECT id, subscribed_to_all FROM subscribers WHERE id = %s', (chat_id,))
             row = curs.fetchone()
             if not row:
+                updater.bot.send_message(chat_id, text='Подписчика нет, добавляем')
                 curs.execute('INSERT INTO subscribers (id, first_name, last_name, subscribed_to_all) VALUES (%s, %s, %s, %s)'
                     , (chat_id, first_name, last_name, False))
+                updater.bot.send_message(chat_id, text='Добавили')
+            updater.bot.send_message(chat_id, text='Проверяем подписку на продукт')
             curs.execute('SELECT id, product_id FROM subscriptions_to_products WHERE id = %s and product_id = %s', (chat_id, product_id))
             row = curs.fetchone()
             if not row:
+                updater.bot.send_message(chat_id, text='Подписки на продукт нет, добавляем')
                 curs.execute('INSERT INTO subscriptions_to_products (id, product_id) VALUES (%s, %s)', (chat_id, product_id))
+                updater.bot.send_message(chat_id, text='Добавили подписку на продукт')
             else:
                 result = 2
     curs.close()
