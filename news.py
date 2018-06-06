@@ -92,7 +92,7 @@ def need_send(feed, receiver, subscriptions_to_products):
         return True
     if not receiver['id'] in subscriptions_to_products:
         return False
-    return set(feed['products']) & set(subscriptions_to_products[receiver['id']])
+    return set(feed['products']) & {item[1] for item in subscriptions_to_products[receiver['id']]}
 
 def send_feed(updater, feed, receivers, subscriptions_to_products):
     message_text = feed['title'] + '\n' + feed['description'] + '\n' + feed['published']
@@ -100,7 +100,10 @@ def send_feed(updater, feed, receivers, subscriptions_to_products):
     message_text = regexp.sub(r'\g<1>', message_text)
     for receiver in receivers:
         if need_send(feed, receiver, subscriptions_to_products):
-            updater.bot.send_message(receiver['id'], text=message_text, parse_mode=telegram.ParseMode.HTML)
+            try:
+                updater.bot.send_message(receiver['id'], text=message_text, parse_mode=telegram.ParseMode.HTML)
+            except:
+                updater.bot.send_message(receiver['id'], text=message_text)
 
 if __name__ == '__main__':
 
